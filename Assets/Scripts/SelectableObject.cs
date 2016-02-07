@@ -7,4 +7,5 @@ public class SelectableObject : MonoBehaviour
     public string Name;
     public string Description;
     public Texture2D Thumbnail;
+    public GameObject AdditionalObject;
 }
