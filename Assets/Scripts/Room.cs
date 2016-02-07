@@ -5,6 +5,9 @@ using System.Linq;
 
 public class Room : MonoBehaviour
 {
+    public string Name;
+    public Texture2D Thumbnail;
+
     //Lista obiektow do wybrania
     public List<SelectableObject> Selectables
     {
