@@ -51,6 +51,16 @@ public class WorldManager : MonoBehaviour
         _instance = this;
     }
 
+    void Start()
+    {
+        _roomSelectionView.gameObject.SetActive(true);
+        foreach(Room r in _rooms)
+        {
+            r.gameObject.SetActive(false);
+        }
+        _modelView.gameObject.SetActive(false);
+    }
+
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.Escape))

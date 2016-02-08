@@ -28,6 +28,7 @@ public class ModelView : MonoBehaviour
     private GameObject _currentObject;
     private GameObject _currentAdditionalObject;
     private List<GameObject> _listObjects;
+    private List<string> _names;
 
     private Vector2 _prevMousePosition;
     private RotateDirection _currentDirection;
@@ -37,10 +38,21 @@ public class ModelView : MonoBehaviour
     {
         //Tworzymy liste obiektow
         _listObjects = new List<GameObject>();
+        _names = new List<string>();
+        int j = 0;
         //Wyciagamy informacje o transformie szablonu elementu listy (tej po prawo)
         RectTransform templateRect = _listObjectTemplate.GetComponent<RectTransform>();
         for(int i = 0; i < selectables.Count; ++i)
         {
+            //Jesli juz jest obiekt o danej nazwie
+            if(_names.Contains(selectables[i].Name))
+            {
+                //To kontynuujemy, na kij nam 5 krzesel
+                j += 1;
+                continue;
+            }
+            //A jesli nie ma to dodajemy
+            _names.Add(selectables[i].Name);
             //Tworzymy nowy obiekt na podstawie szablonu
             GameObject newSelectable = Instantiate(_listObjectTemplate);
             //Przypisujemy tego samego rodzica
@@ -48,7 +60,8 @@ public class ModelView : MonoBehaviour
             //Naprawiamy skale, Unity cos psuje
             newSelectable.transform.localScale = Vector3.one;
             //Ustawiamy pozycje
-            newSelectable.GetComponent<RectTransform>().anchoredPosition3D = Vector3.down * (i * (templateRect.rect.height + 10) + 50);
+            //i - j, bo liczymy pominiete obiekty
+            newSelectable.GetComponent<RectTransform>().anchoredPosition3D = Vector3.down * ((i - j) * (templateRect.rect.height + 10) + 50);
             //I wymiary
             newSelectable.GetComponent<RectTransform>().sizeDelta = new Vector2(templateRect.rect.width, templateRect.rect.height);
             //Oraz uzupelniamy informacje na podstawie tego co juz wiemy o tym obiekcie (zeby UI wiedzialo co wyswietlic)
@@ -62,7 +75,7 @@ public class ModelView : MonoBehaviour
             _listObjects.Add(newSelectable);
         }
         //Ustalamy rozmiar okienka sluzacego dla scroll view do przycinania widoku dobrego :)
-        _content.sizeDelta = new Vector2(_content.rect.width, selectables.Count * (templateRect.rect.height + 10) + 50);
+        _content.sizeDelta = new Vector2(_content.rect.width, (selectables.Count - j) * (templateRect.rect.height + 10) + 50);
     }
 
     public void SetCurrentObject(SelectableObject so)
