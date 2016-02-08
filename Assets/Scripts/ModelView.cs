@@ -28,7 +28,8 @@ public class ModelView : MonoBehaviour
     private GameObject _currentObject;
     private GameObject _currentAdditionalObject;
     private List<GameObject> _listObjects;
-    
+
+    private Vector2 _prevMousePosition;
     private RotateDirection _currentDirection;
     private bool _rotating;
 
@@ -108,8 +109,8 @@ public class ModelView : MonoBehaviour
             Vector3 offset = so.AdditionalObject.gameObject.transform.position - so.gameObject.transform.position;
             _currentAdditionalObject = (GameObject)Instantiate(so.AdditionalObject, _modelObject.transform.position + offset, so.AdditionalObject.transform.rotation);
             ChangeLayerRecursively(_currentAdditionalObject, _modelObject.layer);
-            //Ustawmy rodzica, pozwala zachowac porzadek w hierarchii
-            _currentAdditionalObject.transform.parent = _modelObject.transform.parent;
+            //Ustawmy rodzica, pozwala zachowac porzadek w hierarchii oraz zachowac wszelkie transformacje typu obiekt etc
+            _currentAdditionalObject.transform.parent = _currentObject.transform;
             //Odkolorujmy meshe
             mr = _currentAdditionalObject.GetComponent<MeshRenderer>();
             if (mr != null)
@@ -156,83 +157,42 @@ public class ModelView : MonoBehaviour
 
     void Update()
     {
-        //Jak sie obraca to obroc w dobra strone
-        if(_rotating)
+        if(Input.GetMouseButton(1))
         {
-            if(_currentDirection == RotateDirection.Left)
-            {
-                OnRotateLeftClick();
-            }
-            else
-            {
-                OnRotateRightClick();
-            }
-
-            //A jak puscisz lewy przycisk myszy to przestan obracac
-            if(Input.GetMouseButtonUp(0))
-            {
-                _rotating = false;
-            }
+            Vector2 deltaPos = new Vector2(Input.mousePosition.x, Input.mousePosition.y) - _prevMousePosition;
+            RotateObject(_rotationSpeed * -deltaPos.x * 0.5f);
         }
+
+        float y = Input.GetAxis("Vertical");
+        int dir = y > 0.0f ? 1 : (y < 0.0f ? - 1 : 0);
+        MoveObject(dir);
+
+        float scrollY = Input.mouseScrollDelta.y;
+        Vector3 scale = Vector3.one;
+        scale = _currentObject.transform.localScale;
+        scale *= (1.0f + scrollY / 100.0f);
+        _currentObject.transform.localScale = scale;
+
+        _prevMousePosition = Input.mousePosition;
     }
 
-    public void OnRotateLeftClick()
+    void RotateObject(float x)
     {
-        //Obrot w lewo (chyba)
-        _currentDirection = RotateDirection.Left;
+        //Obrot
+        _currentDirection = x < 0.0f ? RotateDirection.Right : RotateDirection.Left;
         if (_currentObject != null)
         {
             //Space.World - obrot o os (0,1,0) w przestrzeni swiata, nie obiektu (wazne, ladnie sie teraz obraca)
-            _currentObject.transform.Rotate(Vector3.up * _rotationSpeed * Time.deltaTime, Space.World);
-            //Obracamy dodatkowy obiekt jesli istnieje (np. to krzeslo pod siedzaca laska)
-            if(_currentAdditionalObject != null)
-            {
-                _currentAdditionalObject.transform.RotateAround(_currentObject.transform.position, Vector3.up, _rotationSpeed * Time.deltaTime);
-            }
-            _rotating = true;
+            _currentObject.transform.Rotate(Vector3.up * x * Time.deltaTime, Space.World);
         }
     }
 
-    public void OnRotateRightClick()
+    void MoveObject(int dir)
     {
-        //Obrot w prawo (chyba)
-        _currentDirection = RotateDirection.Right;
         if (_currentObject != null)
         {
-            //Space.World - obrot o os (0,1,0) w przestrzeni swiata, nie obiektu (wazne, ladnie sie teraz obraca)
-            _currentObject.transform.Rotate(Vector3.up * -_rotationSpeed * Time.deltaTime, Space.World);
-            //Obracamy dodatkowy obiekt jesli istnieje (np. to krzeslo pod siedzaca laska)
-            if (_currentAdditionalObject != null)
-            {
-                _currentAdditionalObject.transform.RotateAround(_currentObject.transform.position, Vector3.up, -_rotationSpeed * Time.deltaTime);
-            }
-            _rotating = true;
-        }
-    }
-
-    public void OnMoveUpClick()
-    {
-        //Przesuniecie w gore, tez w przestrzeni swiata
-        if(_currentObject != null)
-        {
-            _currentObject.transform.Translate(Vector3.up * _movingSpeed, Space.World);
-            if(_currentAdditionalObject != null)
-            {
-                _currentAdditionalObject.transform.Translate(Vector3.up * _movingSpeed, Space.World);
-            }
-        }
-    }
-
-    public void OnMoveDownClick()
-    {
-        //Przesuniecie w dol, tez w przestrzeni swiata
-        if (_currentObject != null)
-        {
-            _currentObject.transform.Translate(Vector3.up * -_movingSpeed, Space.World);
-            if (_currentAdditionalObject != null)
-            {
-                _currentAdditionalObject.transform.Translate(Vector3.up * -_movingSpeed, Space.World);
-            }
+            //Rusz obiektem w gore :)
+            _currentObject.transform.Translate(Vector3.up * dir * _movingSpeed * Time.deltaTime, Space.World);
         }
     }
 
