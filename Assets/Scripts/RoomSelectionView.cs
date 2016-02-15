@@ -50,6 +50,7 @@ public class RoomSelectionView : MonoBehaviour
             newRoom.SetActive(true);
         }
         //Tworzymy dodatkowy sobie do wyswietlenia - comming soon, na tej samej zasadzie co wyzej
+        /*
         GameObject commingSoonRoom = Instantiate(_itemTemplate.gameObject);
         commingSoonRoom.transform.parent = _itemTemplate.transform.parent;
         commingSoonRoom.transform.localScale = Vector3.one;
@@ -64,6 +65,6 @@ public class RoomSelectionView : MonoBehaviour
         commingSoonRSUUI.GetComponent<EventTrigger>().triggers.RemoveAll(
             (trigger) => {return trigger.eventID == EventTriggerType.PointerUp;}    //Predykaty, predykaty, usuwamy wtedy, gdy typ evenetu jest PointerUp, coby nie kliknac :)
             );
-        commingSoonRoom.SetActive(true);
+        commingSoonRoom.SetActive(true);*/
     }
 }
